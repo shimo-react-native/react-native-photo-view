@@ -7,6 +7,7 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 #import <React/RCTImageLoader.h>
+#import <SDWebImage/SDWebImageManager.h>
 
 @interface RNPhotoView()
 
@@ -24,17 +25,24 @@
 @end
 
 @implementation RNPhotoView
-{
-    __weak RCTBridge *_bridge;
-}
 
 - (instancetype)initWithBridge:(RCTBridge *)bridge
 {
     if ((self = [super init])) {
-        _bridge = bridge;
         [self initView];
     }
     return self;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    if (frame.size.width == 0) {
+        frame.size.width = [UIApplication sharedApplication].keyWindow.bounds.size.width;
+    }
+    if (frame.size.height == 0) {
+        frame.size.height = [UIApplication sharedApplication].keyWindow.bounds.size.height;
+    }
+    return [super initWithFrame:frame];
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -195,7 +203,8 @@
     self.minimumZoomScale = minScale;
     
     // Initial zoom
-    self.zoomScale = [self initialZoomScaleWithMinScale];
+    CGFloat zoomScale = [self initialZoomScaleWithMinScale];
+    self.zoomScale = zoomScale;
     
     // If we're zooming to fill then centralise
     if (self.zoomScale != minScale) {
@@ -294,32 +303,26 @@
     }
     _source = source;
     NSURL *imageURL = [NSURL URLWithString:uri];
-    UIImage *image = RCTImageFromLocalAssetURL(imageURL);
-    if (image) { // if local image
-        [self setImage:image];
-        return;
-    }
-    
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:imageURL];
-
-    __weak RNPhotoView *weakSelf = self;
     if (_onPhotoViewerLoadStart) {
         _onPhotoViewerLoadStart(nil);
     }
-    [_bridge.imageLoader loadImageWithURLRequest:request
-                                        callback:^(NSError *error, UIImage *image) {
-                                            if (image) {
-                                                dispatch_sync(dispatch_get_main_queue(), ^{
-                                                    [weakSelf setImage:image];
-                                                });
-                                                if (_onPhotoViewerLoad) {
-                                                    _onPhotoViewerLoad(nil);
-                                                }
-                                            }
-                                            if (_onPhotoViewerLoadEnd) {
-                                                _onPhotoViewerLoadEnd(nil);
-                                            }
-                                        }];
+    
+    __weak RNPhotoView *weakSelf = self;
+    [[SDWebImageManager sharedManager] loadImageWithURL:imageURL options:SDWebImageRetryFailed progress:nil completed:^(UIImage * image, NSData * data, NSError * error, SDImageCacheType cacheType, BOOL finished, NSURL * imageURL) {
+        //
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (image) {
+                [weakSelf setImage:image];
+                if (weakSelf.onPhotoViewerLoad) {
+                    weakSelf.onPhotoViewerLoad(nil);
+                }
+            }
+            if (weakSelf.onPhotoViewerLoadEnd) {
+                weakSelf.onPhotoViewerLoadEnd(nil);
+            }
+        });
+        
+    }];
 }
 
 - (void)setLoadingIndicatorSrc:(NSString *)loadingIndicatorSrc {

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		13BE3DEE1AC21097009241FE /* RNPhotoView.m in Sources */ = {isa = PBXBuildFile; fileRef = 13BE3DED1AC21097009241FE /* RNPhotoView.m */; };
+		284DA0951F29E7F700521164 /* libSDWebImage iOS static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2860007A1F29CECD000FCE24 /* libSDWebImage iOS static.a */; };
 		28829E221F1F5DB900A2FFDB /* RNPhotoViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 28829E211F1F5DB900A2FFDB /* RNPhotoViewManager.m */; };
 		28829E271F1F670500A2FFDB /* MWTapDetectingImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28829E241F1F670500A2FFDB /* MWTapDetectingImageView.m */; };
 		28829E281F1F670500A2FFDB /* MWTapDetectingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28829E261F1F670500A2FFDB /* MWTapDetectingView.m */; };
@@ -88,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				284DA0951F29E7F700521164 /* libSDWebImage iOS static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
