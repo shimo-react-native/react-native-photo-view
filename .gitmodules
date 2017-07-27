@@ -1,0 +1,4 @@
+[submodule "ios/SDWebImage"]
+	path = ios/SDWebImage
+	url = https://github.com/rs/SDWebImage.git
+	branch = master
