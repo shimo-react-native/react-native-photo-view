@@ -7,7 +7,7 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 #import <React/RCTImageLoader.h>
-#import <SDWebImage/SDWebImageManager.h>
+#import "SDWebImageManager.h"
 
 @interface RNPhotoView()
 
