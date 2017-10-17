@@ -5,8 +5,9 @@ import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.backends.pipeline.PipelineDraweeControllerBuilder;
 import com.facebook.drawee.controller.BaseControllerListener;
 import com.facebook.drawee.controller.ControllerListener;
@@ -14,6 +15,7 @@ import com.facebook.drawee.drawable.AutoRotateDrawable;
 import com.facebook.drawee.drawable.ScalingUtils;
 import com.facebook.drawee.generic.GenericDraweeHierarchy;
 import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
@@ -21,20 +23,20 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.common.SystemClock;
 import com.facebook.react.modules.fresco.ReactNetworkImageRequest;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.EventDispatcher;
-import me.relex.photodraweeview.OnPhotoTapListener;
-import me.relex.photodraweeview.OnScaleChangeListener;
-import me.relex.photodraweeview.OnViewTapListener;
-import me.relex.photodraweeview.PhotoDraweeView;
 
 import javax.annotation.Nullable;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
+
+import me.relex.photodraweeview.OnPhotoTapListener;
+import me.relex.photodraweeview.OnScaleChangeListener;
+import me.relex.photodraweeview.OnViewTapListener;
+import me.relex.photodraweeview.PhotoDraweeView;
 
 import static com.facebook.react.views.image.ReactImageView.REMOTE_IMAGE_FADE_DURATION_MS;
 
@@ -54,6 +56,15 @@ public class PhotoView extends PhotoDraweeView {
 
     public PhotoView(Context context) {
         super(context);
+        /**
+         * must setDownsampleEnabled, or ResizeOptions will be invalid when image is not JPEG files
+         *
+         * @see <http://frescolib.org/docs/resizing.html>
+         */
+        ImagePipelineConfig config = ImagePipelineConfig.newBuilder(context)
+                .setDownsampleEnabled(true)
+                .build();
+        Fresco.initialize(context, config);
     }
 
     public void setSource(@Nullable ReadableMap source,
@@ -154,8 +165,9 @@ public class PhotoView extends PhotoDraweeView {
                         ? mFadeDurationMs
                         : mIsLocalImage ? 0 : REMOTE_IMAGE_FADE_DURATION_MS);
 
+        int maxTextureSize = getMaxTextureSize();
         ImageRequestBuilder imageRequestBuilder = ImageRequestBuilder.newBuilderWithSource(mUri)
-                .setAutoRotateEnabled(true).setResizeOptions(new ResizeOptions(getMaxTextureSize(), getMaxTextureSize()));
+                .setResizeOptions(new ResizeOptions(maxTextureSize, maxTextureSize));
 
         ImageRequest imageRequest = ReactNetworkImageRequest
                 .fromBuilderWithHeaders(imageRequestBuilder, mHeaders);
@@ -178,7 +190,6 @@ public class PhotoView extends PhotoDraweeView {
         if (mControllerListener != null) {
             mDraweeControllerBuilder.setControllerListener(mControllerListener);
         }
-
         setController(mDraweeControllerBuilder.build());
         setViewCallbacks();
 
