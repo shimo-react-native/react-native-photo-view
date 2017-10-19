@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.view.View;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.backends.pipeline.PipelineDraweeControllerBuilder;
 import com.facebook.drawee.controller.BaseControllerListener;
 import com.facebook.drawee.controller.ControllerListener;
@@ -15,7 +14,6 @@ import com.facebook.drawee.drawable.AutoRotateDrawable;
 import com.facebook.drawee.drawable.ScalingUtils;
 import com.facebook.drawee.generic.GenericDraweeHierarchy;
 import com.facebook.imagepipeline.common.ResizeOptions;
-import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
@@ -53,18 +51,10 @@ public class PhotoView extends PhotoDraweeView {
     private PipelineDraweeControllerBuilder mDraweeControllerBuilder;
     private int mFadeDurationMs = -1;
     private ControllerListener mControllerListener;
+    private float mMaxBitmapSize = -1;
 
     public PhotoView(Context context) {
         super(context);
-        /**
-         * must setDownsampleEnabled, or ResizeOptions will be invalid when image is not JPEG files
-         *
-         * @see <http://frescolib.org/docs/resizing.html>
-         */
-        ImagePipelineConfig config = ImagePipelineConfig.newBuilder(context)
-                .setDownsampleEnabled(true)
-                .build();
-        Fresco.initialize(context, config);
     }
 
     public void setSource(@Nullable ReadableMap source,
@@ -80,6 +70,9 @@ public class PhotoView extends PhotoDraweeView {
                 }
                 if (source.hasKey("headers")) {
                     mHeaders = source.getMap("headers");
+                }
+                if (source.hasKey("maxBitmapSize")) {
+                    mMaxBitmapSize = source.getInt("maxBitmapSize");
                 }
             } catch (Exception e) {
                 // ignore malformed uri, then attempt to extract resource ID.
@@ -127,12 +120,23 @@ public class PhotoView extends PhotoDraweeView {
                         @Nullable final ImageInfo imageInfo,
                         @Nullable Animatable animatable) {
                     if (imageInfo != null) {
-                        eventDispatcher.dispatchEvent(
-                                new ImageEvent(getId(), ImageEvent.ON_LOAD)
-                        );
-                        eventDispatcher.dispatchEvent(
-                                new ImageEvent(getId(), ImageEvent.ON_LOAD_END)
-                        );
+                        {
+                            WritableMap size = Arguments.createMap();
+                            size.putInt("width", imageInfo.getWidth());
+                            size.putInt("height", imageInfo.getHeight());
+                            eventDispatcher.dispatchEvent(
+                                    new ImageEvent(getId(), ImageEvent.ON_LOAD).setExtras(size)
+                            );
+                        }
+                        {
+                            // must rewrite
+                            WritableMap size = Arguments.createMap();
+                            size.putInt("width", imageInfo.getWidth());
+                            size.putInt("height", imageInfo.getHeight());
+                            eventDispatcher.dispatchEvent(
+                                    new ImageEvent(getId(), ImageEvent.ON_LOAD_END).setExtras(size)
+                            );
+                        }
                         update(imageInfo.getWidth(), imageInfo.getHeight());
                     }
                 }
@@ -164,10 +168,12 @@ public class PhotoView extends PhotoDraweeView {
                 mFadeDurationMs >= 0
                         ? mFadeDurationMs
                         : mIsLocalImage ? 0 : REMOTE_IMAGE_FADE_DURATION_MS);
-
         int maxTextureSize = getMaxTextureSize();
+        ResizeOptions resizeOptions = mMaxBitmapSize > 0 ?
+                new ResizeOptions(maxTextureSize, maxTextureSize, mMaxBitmapSize) :
+                new ResizeOptions(maxTextureSize, maxTextureSize);
         ImageRequestBuilder imageRequestBuilder = ImageRequestBuilder.newBuilderWithSource(mUri)
-                .setResizeOptions(new ResizeOptions(maxTextureSize, maxTextureSize));
+                .setResizeOptions(resizeOptions);
 
         ImageRequest imageRequest = ReactNetworkImageRequest
                 .fromBuilderWithHeaders(imageRequestBuilder, mHeaders);
