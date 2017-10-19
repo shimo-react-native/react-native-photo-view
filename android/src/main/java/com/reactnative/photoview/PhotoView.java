@@ -129,7 +129,7 @@ public class PhotoView extends PhotoDraweeView {
                             );
                         }
                         {
-                            // must re write
+                            // must rewrite
                             WritableMap size = Arguments.createMap();
                             size.putInt("width", imageInfo.getWidth());
                             size.putInt("height", imageInfo.getHeight());
