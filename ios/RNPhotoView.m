@@ -20,6 +20,7 @@
 #pragma mark - Data
 
 @property (nonatomic, strong) UIImage *image;
+@property (nonatomic, strong) FLAnimatedImage *animatedImage;
 @property (nonatomic, strong) UIImage *loadingImage;
 
 @end
@@ -265,8 +266,8 @@
 #pragma mark - Image
 
 // Get and display image
-- (void)displayWithImage:(UIImage*)image {
-    if (image && !_photoImageView.image) {
+- (void)displayWithImage:(UIImage*)image animatedImage:(FLAnimatedImage*)animatedImage {
+    if ((image || animatedImage)  && !_photoImageView.image) {
         
         // Reset
 //        self.maximumZoomScale = 1;
@@ -275,7 +276,11 @@
         self.contentSize = CGSizeMake(0, 0);
         
         // Set image
-        _photoImageView.image = image;
+        if (image) {
+            _photoImageView.image = image;
+        } else {
+            _photoImageView.animatedImage = animatedImage;
+        }
         _photoImageView.hidden = NO;
         
         // Setup photo frame
@@ -312,7 +317,12 @@
         //
         dispatch_async(dispatch_get_main_queue(), ^{
             if (image) {
-                [weakSelf setImage:image];
+                if (image.images != nil) {
+                    FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:data];
+                    [weakSelf setAnimatedImage:image];
+                } else {
+                    [weakSelf setImage:image];
+                }
                 if (weakSelf.onPhotoViewerLoad) {
                     weakSelf.onPhotoViewerLoad(nil);
                 }
@@ -342,7 +352,12 @@
 
 - (void)setImage:(UIImage *)image {
     _image = image;
-    [self displayWithImage:_image];
+    [self displayWithImage:_image animatedImage:nil];
+}
+
+- (void)setAnimatedImage:(FLAnimatedImage *)animatedImage {
+    _animatedImage = animatedImage;
+    [self displayWithImage:nil animatedImage:_animatedImage];
 }
 
 - (void)setLoadingImage:(UIImage *)loadingImage {
