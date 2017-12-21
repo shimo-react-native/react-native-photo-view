@@ -317,7 +317,7 @@
         //
         dispatch_async(dispatch_get_main_queue(), ^{
             if (image) {
-                if (image.isGIF) {
+                if (image.images != nil) {
                     FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:data];
                     [weakSelf setAnimatedImage:image];
                 } else {
