@@ -302,19 +302,31 @@
     if ([_source isEqualToDictionary:source]) {
         return;
     }
+
     NSString *uri = source[@"uri"];
     if (!uri) {
         return;
     }
+    
+    NSURL *url = [NSURL URLWithString:uri];
+    if (!url.scheme || [url.scheme isEqualToString:@"file"]) { // local uri
+        if ([url.scheme isEqualToString:@"file"]) {
+            uri = [uri substringFromIndex:@"file://".length];
+        }
+        NSString *directory = [self getDirectory:uri];
+        [[SDImageCache sharedImageCache] addReadOnlyCachePath:directory];
+        url = [[NSURL alloc] initFileURLWithPath:uri isDirectory:NO];
+    }
+    if (!url) {
+        return;
+    }
     _source = source;
-    NSURL *imageURL = [NSURL URLWithString:uri];
     if (_onPhotoViewerLoadStart) {
         _onPhotoViewerLoadStart(nil);
     }
     
     __weak RNPhotoView *weakSelf = self;
-    [[SDWebImageManager sharedManager] loadImageWithURL:imageURL options:SDWebImageRetryFailed progress:nil completed:^(UIImage * image, NSData * data, NSError * error, SDImageCacheType cacheType, BOOL finished, NSURL * imageURL) {
-        //
+    [[SDWebImageManager sharedManager] loadImageWithURL:url options:SDWebImageRetryFailed progress:nil completed:^(UIImage * image, NSData * data, NSError * error, SDImageCacheType cacheType, BOOL finished, NSURL * imageURL) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (image) {
                 if (image.images != nil) {
@@ -406,4 +418,16 @@
     [self addSubview:_photoImageView];
 }
 
+-(NSString*)getDirectory:(NSString *)path{
+    NSArray *array = [path componentsSeparatedByString:@"/"];
+    if (array.count > 0) {
+        NSMutableArray *mutableArray = [array mutableCopy];
+        [mutableArray removeLastObject];
+        return [mutableArray componentsJoinedByString:@"/"];
+    } else {
+        return path;
+    }
+}
+
 @end
+
