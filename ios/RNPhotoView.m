@@ -267,7 +267,7 @@
 
 // Get and display image
 - (void)displayWithImage:(UIImage*)image animatedImage:(FLAnimatedImage*)animatedImage {
-    if ((image || animatedImage)  && !_photoImageView.image) {
+    if ((image || animatedImage)) {
         
         // Reset
 //        self.maximumZoomScale = 1;
