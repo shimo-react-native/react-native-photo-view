@@ -270,7 +270,12 @@
     if (_height != self.bounds.size.height || _width != self.bounds.size.width) {
         _height = self.bounds.size.height;
         _width = self.bounds.size.width;
+        // Setup content size
+        self.contentSize = _photoImageView.frame.size;
+        
+        // Set zoom to minimum zoom
         [self setMaxMinZoomScalesForCurrentBounds];
+        [self setNeedsLayout];
     }
 }
 
