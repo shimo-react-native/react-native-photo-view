@@ -25,24 +25,27 @@
 
 @end
 
-@implementation RNPhotoView
+@implementation RNPhotoView {
+    CGFloat _width;
+    CGFloat _height;
+}
 
-- (instancetype)initWithBridge:(RCTBridge *)bridge
-{
+- (instancetype)initWithBridge:(RCTBridge *)bridge {
     if ((self = [super init])) {
         [self initView];
     }
     return self;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame
-{
+- (instancetype)initWithFrame:(CGRect)frame {
     if (frame.size.width == 0) {
         frame.size.width = [UIApplication sharedApplication].keyWindow.bounds.size.width;
     }
     if (frame.size.height == 0) {
         frame.size.height = [UIApplication sharedApplication].keyWindow.bounds.size.height;
     }
+    _height = frame.size.height;
+    _width = frame.size.width;
     return [super initWithFrame:frame];
 }
 
@@ -76,6 +79,8 @@
     if (self.zoomScale != self.minimumZoomScale && self.zoomScale != [self initialZoomScaleWithMinScale]) {
         // Zoom out
         [self setZoomScale:self.minimumZoomScale animated:YES];
+    } else if (self.zoomScale == self.minimumZoomScale && self.zoomScale == self.maximumZoomScale) {
+        return;
     } else {
         // Zoom in to twice the size
         CGFloat newZoomScale = ((self.maximumZoomScale + self.minimumZoomScale) / 2);
@@ -221,15 +226,14 @@
     
     // Layout
     [self setNeedsLayout];
-    
 }
 
 #pragma mark - Layout
 
 - (void)layoutSubviews {
-    
     // Update tap view frame
     _tapView.frame = self.bounds;
+    
     
     // Super
     [super layoutSubviews];
@@ -260,6 +264,16 @@
                               @"scale": @(self.zoomScale),
                               @"target": self.reactTag
                               });
+    }
+    
+    if (_height != self.bounds.size.height || _width != self.bounds.size.width) {
+        _height = self.bounds.size.height;
+        _width = self.bounds.size.width;
+        // Setup content size
+        self.contentSize = _photoImageView.frame.size;
+        
+        // Set zoom to minimum zoom
+        [self setMaxMinZoomScalesForCurrentBounds];
     }
 }
 
@@ -292,7 +306,6 @@
         
         // Set zoom to minimum zoom
         [self setMaxMinZoomScalesForCurrentBounds];
-        [self setNeedsLayout];
     }
 }
 
@@ -397,7 +410,7 @@
     _maxZoomScale = 3.0;
     
     // Setup
-    self.backgroundColor = [UIColor blackColor];
+    self.backgroundColor = [UIColor clearColor];
     self.delegate = self;
     self.decelerationRate = UIScrollViewDecelerationRateFast;
     self.showsVerticalScrollIndicator = YES;
@@ -407,12 +420,13 @@
     _tapView = [[MWTapDetectingView alloc] initWithFrame:self.bounds];
     _tapView.tapDelegate = self;
     _tapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    _tapView.backgroundColor = [UIColor blackColor];
+    _tapView.backgroundColor = [UIColor clearColor];
     [self addSubview:_tapView];
     
     // Image view
     _photoImageView = [[MWTapDetectingImageView alloc] initWithFrame:self.bounds];
-    _photoImageView.backgroundColor = [UIColor blackColor];
+    _photoImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _photoImageView.backgroundColor = [UIColor clearColor];
     _photoImageView.contentMode = UIViewContentModeCenter;
     _photoImageView.tapDelegate = self;
     [self addSubview:_photoImageView];
