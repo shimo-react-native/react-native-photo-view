@@ -226,7 +226,6 @@
     
     // Layout
     [self setNeedsLayout];
-    
 }
 
 #pragma mark - Layout
@@ -275,7 +274,6 @@
         
         // Set zoom to minimum zoom
         [self setMaxMinZoomScalesForCurrentBounds];
-        [self setNeedsLayout];
     }
 }
 
@@ -308,7 +306,6 @@
         
         // Set zoom to minimum zoom
         [self setMaxMinZoomScalesForCurrentBounds];
-        [self setNeedsLayout];
     }
 }
 
