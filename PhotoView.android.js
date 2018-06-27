@@ -23,6 +23,7 @@ export default class PhotoView extends Component {
         ]),
         fadeDuration: PropTypes.number,
         minimumZoomScale: PropTypes.number,
+        mediumZoomScale: PropTypes.number,
         maximumZoomScale: PropTypes.number,
         scale: PropTypes.number,
         androidZoomTransitionDuration: PropTypes.number,
