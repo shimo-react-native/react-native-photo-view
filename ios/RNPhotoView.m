@@ -184,7 +184,7 @@
     if (_photoImageView.image == nil) return;
     
     // Reset position
-    _photoImageView.frame = CGRectMake(0, 0, _photoImageView.frame.size.width, _photoImageView.frame.size.height);
+    _photoImageView.frame = CGRectMake(0, 0, _photoImageView.image.size.width, _photoImageView.image.size.height);
     
     // Sizes
     CGSize boundsSize = self.bounds.size;
@@ -288,7 +288,7 @@
 //        self.minimumZoomScale = 1;
         self.zoomScale = 1;
         self.contentSize = CGSizeMake(0, 0);
-        
+
         // Set image
         if (image) {
             _photoImageView.image = image;
@@ -425,7 +425,6 @@
     
     // Image view
     _photoImageView = [[MWTapDetectingImageView alloc] initWithFrame:self.bounds];
-    _photoImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _photoImageView.backgroundColor = [UIColor clearColor];
     _photoImageView.contentMode = UIViewContentModeCenter;
     _photoImageView.tapDelegate = self;
