@@ -13,6 +13,7 @@
 @property (nonatomic, strong) NSDictionary *src;
 @property (nonatomic, strong) NSString *loadingIndicatorSrc;
 @property (nonatomic, assign) NSInteger scale;
+@property (nonatomic, assign) BOOL fitX;
 @property (nonatomic, assign) CGFloat minZoomScale;
 @property (nonatomic, assign) CGFloat maxZoomScale;
 

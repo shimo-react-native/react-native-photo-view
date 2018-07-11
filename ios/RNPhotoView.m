@@ -202,10 +202,14 @@
      so has the next convert
      */
     CGFloat maxScale = minScale * _maxZoomScale;
-    minScale = minScale * _minZoomScale;
+    if (_fitX) {
+        minScale = xScale;
+    } else {
+        minScale = minScale * _minZoomScale;
+    }
     
     // Set min/max zoom
-    self.maximumZoomScale = maxScale;
+    self.maximumZoomScale = MAX(maxScale, minScale);
     self.minimumZoomScale = minScale;
     
     // Initial zoom
@@ -407,6 +411,7 @@
 #pragma mark - Private
 
 - (void)initView {
+    _fitX = NO;
     _minZoomScale = 1.0;
     _maxZoomScale = 3.0;
     
