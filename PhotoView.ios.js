@@ -22,6 +22,7 @@ export default class PhotoView extends Component {
             PropTypes.number
         ]),
         fadeDuration: PropTypes.number,
+        fitX: PropTypes.bool,
         minimumZoomScale: PropTypes.number,
         maximumZoomScale: PropTypes.number,
         scale: PropTypes.number,
