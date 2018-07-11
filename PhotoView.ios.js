@@ -33,6 +33,7 @@ export default class PhotoView extends Component {
         onScale: PropTypes.func,
         showsHorizontalScrollIndicator: PropTypes.bool,
         showsVerticalScrollIndicator: PropTypes.bool,
+        bounces: PropTypes.bool,
         ...ViewPropTypes
     };
 
