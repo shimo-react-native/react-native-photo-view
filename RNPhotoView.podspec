@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.name         = "RNPhotoView"
   s.version      = package['version']
   s.summary      = package['description']
-  s.author       = package['author'] 
+  s.author       = package['author']
   s.homepage     = package['homepage']
   s.license      = package['license']
   s.ios.deployment_target = "7.0"
@@ -14,4 +14,6 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/shimo-react-native/react-native-photo-view.git", :tag => "v#{s.version}" }
   s.source_files  = "ios/*.{h,m}"
   s.dependency "React"
+  s.dependency "FLAnimatedImage"
+  s.dependency "SDWebImage"
 end
