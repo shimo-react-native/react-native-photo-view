@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.name         = "RNPhotoView"
   s.version      = package['version']
   s.summary      = package['description']
-  s.author       = package['author'] 
+  s.author       = package['author']
   s.homepage     = package['homepage']
   s.license      = package['license']
   s.ios.deployment_target = "7.0"

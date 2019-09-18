@@ -7,7 +7,7 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 #import <React/RCTImageLoader.h>
-#import "SDWebImageManager.h"
+#import <SDWebImage/SDWebImage.h>
 
 @interface RNPhotoView()
 
@@ -331,8 +331,6 @@
         if ([url.scheme isEqualToString:@"file"]) {
             uri = [uri substringFromIndex:@"file://".length];
         }
-        NSString *directory = [self getDirectory:uri];
-        [[SDImageCache sharedImageCache] addReadOnlyCachePath:directory];
         url = [[NSURL alloc] initFileURLWithPath:uri isDirectory:NO];
     }
     if (!url) {
